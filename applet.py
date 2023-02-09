@@ -9,6 +9,7 @@ port = "8123"
 endpoint = lambda a: "http://" + host + ":" + port + a
 rgb_luminence = "/api/services/light/turn_on"
 light_toggle = "/api/services/light/toggle"
+remote_send = "/api/services/remote/send_command"
 
 ha_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIxNzVmZDJlYWZmODA0OGJmOTk4ZDE5MTJhMGQ3ZDkwZCIsImlhdCI6MTY3NTMzMjkwOSwiZXhwIjoxOTkwNjkyOTA5fQ.NfPsebbQl28eEKSSOHciA9ThJ_UlJXt45s6H-ZNrwrE"
 
@@ -21,7 +22,7 @@ headers = {
 }
 
 def api_send(endpoint, post_data):
-	response = requests.post(endpoint, headers=headers, json=post_data)
+	response = requests.post(endpoint, headers=headers, json=post_data, timeout=1)
 	print(response)
 
 
@@ -33,6 +34,8 @@ def data_select(icon_number, direction="", rgb_color=[]):
 		data.update({"entity_id": "light.living_room_lights"})
 	elif icon_number == "icon3":
 		data.update({"entity_id": "light.front_room_lights"})
+	elif icon_number == "icon4":
+		data.update({"entity_id":"remote.living_room_ir_blaster_remote","device":"Projector","command":"Power"})
 
 	if direction != "":
 		if direction == "up":
@@ -67,7 +70,10 @@ def on_scroll_event(status_icon, event, x, y):
 
 
 def change_toggle(icon_number):
-	api_send(endpoint(light_toggle), data_select(icon_number))
+	if icon_number == "icon4":
+		api_send(endpoint(remote_send), data_select(icon_number))
+	else:
+		api_send(endpoint(light_toggle), data_select(icon_number))
 
 
 def change_luminence(icon_number, direction):
@@ -114,5 +120,13 @@ icon3.set_icon_name("/home/albo/lightbulb-applet-py/bulb3.png")
 icon3.set_visible(True)
 icon3.set_name("icon3")
 icon3.set_tooltip_text("Front Room")
+
+icon4 = XApp.StatusIcon()
+icon4.connect("scroll-event", on_scroll_event)
+icon4.connect("activate", on_button_event)
+icon4.set_icon_name("/home/albo/lightbulb-applet-py/projector.png")
+icon4.set_visible(True)
+icon4.set_name("icon4")
+icon4.set_tooltip_text("Projector")
 
 Gtk.main()
