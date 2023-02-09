@@ -81,18 +81,24 @@ def change_luminence(icon_number, direction):
 
 
 def change_color(icon_number):
-	color_chooser = Gtk.ColorChooserDialog("Choose a color")
-	color_chooser.set_transient_for(None)
-	color_chooser.set_modal(True)
-	response = color_chooser.run()
-	if response == Gtk.ResponseType.OK:
-		color = color_chooser.get_rgba()
-		red = int(color.red * 255)
-		green = int(color.green * 255)
-		blue = int(color.blue * 255)
-		alpha = int(color.alpha * 255)
-	color_chooser.destroy()
-	api_send(endpoint(rgb_luminence), data_select(icon_number, None, [red,green,blue]))
+	if icon_number != "icon4":
+		color_chooser = Gtk.ColorChooserDialog("Choose a color")
+		color_chooser.set_transient_for(None)
+		color_chooser.set_modal(True)
+		response = color_chooser.run()
+		if response == Gtk.ResponseType.OK:
+			color = color_chooser.get_rgba()
+			red = int(color.red * 255)
+			green = int(color.green * 255)
+			blue = int(color.blue * 255)
+			alpha = int(color.alpha * 255)
+		color_chooser.destroy()
+		try:
+			color
+		except:
+			print("no color selected")
+		else: 
+			api_send(endpoint(rgb_luminence), data_select(icon_number, None, [red,green,blue]))
 
 
 
@@ -122,7 +128,6 @@ icon3.set_name("icon3")
 icon3.set_tooltip_text("Front Room")
 
 icon4 = XApp.StatusIcon()
-icon4.connect("scroll-event", on_scroll_event)
 icon4.connect("activate", on_button_event)
 icon4.set_icon_name("/home/albo/lightbulb-applet-py/projector.png")
 icon4.set_visible(True)
